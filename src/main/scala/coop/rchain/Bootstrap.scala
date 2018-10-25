@@ -12,9 +12,12 @@ import coop.rchain.repo.RholangProxy
 
 
 object Bootstrap extends IOApp {
-  val cfg = ConfigFactory.load("rsong-acquisition.conf")
-  val appCfg = cfg.getConfig("coop.rchain.rsong")
+  val cfg = ConfigFactory.load
   val rsongPath = "/home/kayvan/dev/assets/RCHAIN Assets"
+  val appCfg = cfg.getConfig("coop.rchain.rsong")
+  val (host,port) = ( appCfg.getString("grpc.host"),
+    appCfg.getInt("grpc.ports.external"))
+  val proxy = RholangProxy(host, port)
 
   def run(args: List[String]): IO[ExitCode] =
     args.headOption match {
@@ -43,7 +46,7 @@ object Bootstrap extends IOApp {
   }
 
   // lazy val proxy = RholangProxy("localhost", 40401)
-  lazy val proxy = RholangProxy(appCfg.getString("grpc.host"), 40401)
+
 
   def aquireAssets(path: String) = {
     val ret =
@@ -58,8 +61,8 @@ object Bootstrap extends IOApp {
                         s"$path/Songs/Broke_Stereo.izr",
                         mocSongs("Broke"))
         _ <- loadeAsset("Broke.jpg",
-                        s"$path/Labels/Broke.jpg",
-                        mocSongs("Broke"))
+        s"$path/Labels/Broke.jpg",
+            mocSongs("Broke"))
 
         _ <- proxy.proposeBlock
         _ <- loadeAsset("Euphoria_Immersive.izr",
@@ -69,7 +72,7 @@ object Bootstrap extends IOApp {
                         s"$path/Songs/Euphoria_Stereo.izr",
                         mocSongs("Euphoria"))
         _ <- loadeAsset("Euphoria.jpg",
-                        s"$path/Labels/Euphoria.jpg",
+                       s"$path/Labels/Euphoria.jpg",
                         mocSongs("Euphoria"))
         _ <- proxy.proposeBlock
 
@@ -100,7 +103,9 @@ object Bootstrap extends IOApp {
                              assetData =
                                asHexConcatRsong(s"$assetPath").toOption.get,
                              jsonData = metadata.asJson.toString)
-    (asRholang _ andThen proxy.deploy _)(ret)
+    val r = (asRholang _ andThen proxy.deploy _)(ret)
+    log.info(s"loadasset completed. return message: $r")
+    r
   }
 
 }

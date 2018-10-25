@@ -1,10 +1,11 @@
 package coop.rchain.repo
 
-import coop.rchain.casper.protocol._
+
 import coop.rchain.domain.{Err, ErrorCode}
 import com.google.protobuf.empty._
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import com.typesafe.scalalogging.Logger
+import coop.rchain.casper.protocol.{DeployData, DeployServiceGrpc}
 import coop.rchain.casper.protocol.DeployServiceGrpc.DeployServiceBlockingStub
 import coop.rchain.utils.FileUtil
 
@@ -41,8 +42,8 @@ class RholangProxy(channel: ManagedChannel) {
       DeployData()
         .withTerm(contract)
         .withTimestamp(System.currentTimeMillis())
-        .withPhloLimit(coop.rchain.casper.protocol.PhloLimit(1000000))
-        .withPhloPrice(coop.rchain.casper.protocol.PhloPrice(1))
+        .withPhloLimit(Long.MaxValue)
+        .withPhloPrice(1L)
         .withNonce(0)
         .withFrom("0x1")
     )
@@ -59,15 +60,15 @@ class RholangProxy(channel: ManagedChannel) {
     } yield d
 
   def proposeBlock: Either[Err, String] =
-Try(   grpc.createBlock(Empty()) ) match {
-  case Success(response) if response.success =>
-    Right(response.message)
-  case Success(response) if ! response.success =>
-    log.error(s"grpc error. error return: ${response}")
-    Left(Err(ErrorCode.grpcPropose, response.message, None))
-  case Failure(e) =>
-    println(e)
-    Left(Err(ErrorCode.grpcPropose, e.getMessage, None))
-  }
+    Try(   grpc.createBlock(Empty()) ) match {
+      case Success(response) if response.success =>
+        Right(response.message)
+      case Success(response) if ! response.success =>
+        log.error(s"grpc error. error return: ${response}")
+        Left(Err(ErrorCode.grpcPropose, response.message, None))
+      case Failure(e) =>
+        println(e)
+        Left(Err(ErrorCode.grpcPropose, e.getMessage, None))
+    }
 
 }
