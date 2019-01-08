@@ -16,7 +16,8 @@ object Bootstrap extends IOApp {
   val rsongPath = "/home/kayvan/dev/assets/RCHAIN Assets"
   val appCfg = cfg.getConfig("coop.rchain.rsong")
   val (host,port) = ( appCfg.getString("grpc.host"),
-    appCfg.getInt("grpc.ports.external"))
+                      appCfg.getInt("grpc.ports.external"))
+  log.info(s"grpc port: $port   grpc host: $host")
   val proxy = RholangProxy(host, port)
 
   def run(args: List[String]): IO[ExitCode] =

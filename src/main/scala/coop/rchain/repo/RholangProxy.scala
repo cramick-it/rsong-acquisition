@@ -3,6 +3,7 @@ package coop.rchain.repo
 
 import coop.rchain.domain.{Err, ErrorCode}
 import com.google.protobuf.empty._
+import com.google.protobuf.{ByteString, Int32Value, StringValue}
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import com.typesafe.scalalogging.Logger
 import coop.rchain.casper.protocol.{DeployData, DeployServiceGrpc}
@@ -37,20 +38,17 @@ class RholangProxy(channel: ManagedChannel) {
 
   def shutdown = channel.shutdownNow()
 
-  def deploy(contract: String): Either[Err, String] = {
-    val resp = grpc.doDeploy(
-      DeployData()
-        .withTerm(contract)
-        .withTimestamp(System.currentTimeMillis())
-        .withPhloLimit(Long.MaxValue)
-        .withPhloPrice(1L)
-        .withNonce(0)
-        .withFrom("0x1")
-    )
+  def deploy(source: String): Either[Err, String] = {
+    val resp = grpc.doDeploy(DeployData(
+        user = ByteString.EMPTY,
+        timestamp = System.currentTimeMillis(),
+        term = source,
+        phloLimit = Integer.MAX_VALUE
+      ))
 
     if (resp.success)
       Right(resp.message)
-    else Left(Err(ErrorCode.grpcDeploy, resp.message, Some(contract)))
+    else Left(Err(ErrorCode.grpcDeploy, resp.message, Some(source)))
   }
 
   val deployFromFile: String => Either[Err, String] = path =>

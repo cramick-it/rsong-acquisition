@@ -21,4 +21,6 @@ native/
 ## direnv
 ##
 .envrc
+.tags
+TAGS
 

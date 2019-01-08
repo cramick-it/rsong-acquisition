@@ -41,6 +41,7 @@ lazy val root = (project in file("."))
         "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
         "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion,
         "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+        "com.propensive" %% "magnolia" % "0.10.0",
         "ch.qos.logback" % "logback-classic" % V.logback
       )})
 
