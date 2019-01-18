@@ -58,7 +58,6 @@ enablePlugins(
 
 compileWithTodolistSettings
 
-
 dockerRepository := Some("kayvank")
 dockerUpdateLatest := true
 version in Docker := version.value + "-" + scala.sys.env.getOrElse(

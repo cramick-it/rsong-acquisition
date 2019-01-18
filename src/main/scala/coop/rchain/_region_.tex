@@ -1,0 +1,56 @@
+\message{ !name(rchain-sites.tex)}\documentclass[12pt, letterpaper]{article}
+\usepackage{blindtext}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+ 
+\title{CI/CD static websites}
+\author{Kayvan Kazeminejad}
+\date{\today}
+ 
+\begin{document}
+
+\message{ !name(rchain-sites.tex) !offset(-3) }
+
+ 
+\maketitle
+ 
+\section{Introduction}
+ 
+I recently was tasked to do a migration of all 6 RChain web sites. Theses
+sites are three node-js apps with poestgres backend,  a multi-home wordpress, and two static html web sites. The ideal solution would:
+\item scalabel, scale up/down to meet demands
+\item extendable, easily add additional websites/webapps
+\item utilize href\{https://en.wikipedia.org/wiki/CI/CD}{CI/CD} pipeline with no manual intervention
+\item provide traceability 
+\item provide fast rapid deployments with no downtime
+\item href\{https://en.wikipedia.org/wiki/Transport_Layer_Security}{SSL/TLS certificates}
+
+Luckly, we had a solution in \href{https://github.com/rchain/rsong-proxy}
+{RSong} that met all above non-functional requirements. As an \href{https://en.wikipedia.org/wiki/Infrastructure_as_code}{IaC}, RSong
+provides all foregoing features.  
+\item CI/CD by utilizing google href\{https://cloud.google.com/cloud-build/}{cloud-build} and git 
+\item scalable using href\{https://kubernetes.io}{kubernetes, k8} clustering technology.
+\item SSL/TLS certificates by utilizing k8 ingress and href\{https://letsencrypt.org}{letsencrypt}
+
+\section{The Pipeline} 
+We created a very simple work flow.  Authors or developers will modify the site
+\item create a git repository
+\item create a build script to package all assets
+\item create docker image
+
+  \section{Step 1: git}
+  The first step was to set up a git repo.  
+  \section{Step 2: CI/CD}
+  CI/CD must not involve manual work code is committed. Consequently for each
+  website/webapp we set up a gulp task to package the source code for docker packaging.
+  \section{Step 3: docker build and publish}
+  Once the code was packaged, the next step was to move all the code to Dockerfile
+  \section{Step 4: apply}
+  
+For all websites/webapps, we create
+\item git repository
+\item template build script in GULP
+\item href\{https://github.com/rchain/www/blob/master/rsong/Dockerfile}{Dockerfile}
+  
+  
+\message{ !name(rchain-sites.tex) !offset(-56) }
