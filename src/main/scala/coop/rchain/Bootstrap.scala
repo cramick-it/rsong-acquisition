@@ -3,16 +3,17 @@ package coop.rchain
 import cats.effect._
 import cats.syntax.all._
 import com.typesafe.config.ConfigFactory
-import coop.rchain.domain._
-import coop.rchain.service.moc.MocSongMetadata.mocSongs
+import service.moc.MocSongMetadata.mocSongs
 import io.circe.generic.auto._
 import io.circe.syntax._
-import coop.rchain.repo.RSongRepo._
-import coop.rchain.repo.RholangProxy
-
+import domain._
+import repo.RSongRepo._
+import repo.RholangProxy
+import utils.Globals._
 
 object Bootstrap extends IOApp {
-  val cfg = ConfigFactory.load("rsong-acquisition.conf")
+
+  lazy val cfg = ConfigFactory.load
   val appCfg = cfg.getConfig("coop.rchain.rsong")
   val rsongPath = "/home/kayvan/dev/assets/RCHAIN Assets"
 

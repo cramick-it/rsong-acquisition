@@ -14,8 +14,6 @@ class FileUtilSpec extends Specification {
     println(s"contract file name is: ${filename}")
 
     val computed = fileFromClasspath("/rho/rsong.rho")
-    println(s"contract is: ${computed}")
-
     computed.isRight === true
   }
 }

@@ -42,9 +42,8 @@ object RSongRepo {
         Right(s)
       case Failure(e) =>
         Left(
-          Err(ErrorCode.rsongHexConversion,
-              s"${e.getMessage}",
-              Some(s"fileName is ${filePath}")))
+          Err(OpCode.rsongHexConversion,
+              s"${e.getMessage}"))
     }
   }
 

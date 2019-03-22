@@ -2,7 +2,7 @@ package coop.rchain.utils
 
 import java.io.File
 
-import coop.rchain.domain.{Err, ErrorCode}
+import coop.rchain.domain.{Err, OpCode}
 
 import scala.util._
 
@@ -18,7 +18,7 @@ object FileUtil {
         Right(s)
       case Failure(e) =>
         stream.close
-        Left(Err(ErrorCode.contractFile, fileName, None))
+        Left(Err(OpCode.contractFile, fileName))
     }
   }
   // todo will be used in v2

@@ -1,11 +1,11 @@
 package coop.rchain.repo
 
 import coop.rchain.casper.protocol._
-import coop.rchain.domain.{Err, ErrorCode}
+import coop.rchain.domain.{Err, OpCode}
 import com.google.protobuf.empty._
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
-import com.typesafe.scalalogging.Logger
 import coop.rchain.casper.protocol.DeployServiceGrpc.DeployServiceBlockingStub
+import coop.rchain.domain.OpCode.OpCode
 import coop.rchain.utils.FileUtil
 
 import scala.util._
@@ -26,31 +26,37 @@ object RholangProxy {
     new RholangProxy(channel)
   }
 
+  implicit class EitherOps(val resp: coop.rchain.either.Either)  {
+    def asEither: OpCode => Either[Err, String] = opcode =>
+      resp match {
+        case coop.rchain.either.Either(content) if content.isError =>
+          Left(Err(
+            opcode,
+            content.error.map(x => x.messages.toString).getOrElse("No error message given!") ))
+        case coop.rchain.either.Either(content) if content.isEmpty =>
+          Left(Err(opcode, "No value was returned!"))
+        case coop.rchain.either.Either(content) if content.isSuccess =>
+          Right(content.success.head.getResponse.value.toStringUtf8)
+      }
+  }
 }
 
 class RholangProxy(channel: ManagedChannel) {
+  import RholangProxy._
 
   private lazy val grpc: DeployServiceBlockingStub =
     DeployServiceGrpc.blockingStub(channel)
-  private lazy val log = Logger[RholangProxy]
 
   def shutdown = channel.shutdownNow()
 
-  def deploy(contract: String): Either[Err, String] = {
-    val resp = grpc.doDeploy(
+  def deploy(contract: String): Either[Err, String] =
+    grpc.doDeploy(
       DeployData()
         .withTerm(contract)
         .withTimestamp(System.currentTimeMillis())
-        .withPhloLimit(coop.rchain.casper.protocol.PhloLimit(1000000))
-        .withPhloPrice(coop.rchain.casper.protocol.PhloPrice(1))
-        .withNonce(0)
-        .withFrom("0x1")
-    )
-
-    if (resp.success)
-      Right(resp.message)
-    else Left(Err(ErrorCode.grpcDeploy, resp.message, Some(contract)))
-  }
+        .withPhloLimit(Long.MaxValue)
+        .withPhloPrice(1L)
+    ).asEither(OpCode.grpcDeploy)
 
   val deployFromFile: String => Either[Err, String] = path =>
     for {
@@ -59,15 +65,7 @@ class RholangProxy(channel: ManagedChannel) {
     } yield d
 
   def proposeBlock: Either[Err, String] =
-Try(   grpc.createBlock(Empty()) ) match {
-  case Success(response) if response.success =>
-    Right(response.message)
-  case Success(response) if ! response.success =>
-    log.error(s"grpc error. error return: ${response}")
-    Left(Err(ErrorCode.grpcPropose, response.message, None))
-  case Failure(e) =>
-    println(e)
-    Left(Err(ErrorCode.grpcPropose, e.getMessage, None))
-  }
+    grpc.createBlock(Empty()).asEither(OpCode.grpcDeploy)
+
 
 }

@@ -29,6 +29,7 @@ lazy val root = (project in file("."))
         val monix="3.0.0-RC1"
       }
       Seq(
+        "com.propensive" %% "magnolia" % "0.10.0", 
         "org.specs2" %% "specs2-core" % V.specs2 % "test",
         "org.typelevel" %% "cats-effect" % V.catsEffect,
        "io.monix" %% "monix" % V.monix ,
