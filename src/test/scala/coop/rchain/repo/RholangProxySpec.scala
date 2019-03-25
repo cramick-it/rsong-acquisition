@@ -46,7 +46,7 @@ new metaDataMapStore, songMapStore, userMapStore, remunerate, testLog(`rho:io:st
         metaDataMapStore!(
           metaDataMap.set(*songId.toByteArray(), [songMetadataIn, *songDataId.toByteArray()])) |
         songMapStore!(songMap.set(*songDataId.toByteArray(), songDataIn)) |
-        songIdOut!(*songId.toByteArray())
+    new String(utf8Bytes, "UTF8")    songIdOut!(*songId.toByteArray())
       }
     }
   } |
@@ -68,5 +68,10 @@ new metaDataMapStore, songMapStore, userMapStore, remunerate, testLog(`rho:io:st
 
       deployed_resp2.isRight === true
       proposed_resp2.isRight  === true
+
     }
+  def e_4 = {
+    import coop.rchain.casper.util.comm._
+    val l = ListenAt
+  }
 }

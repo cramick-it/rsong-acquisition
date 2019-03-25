@@ -16,15 +16,17 @@ new metaDataMapStore, songMapStore, userMapStore, remunerate, testLog(`rho:io:st
       for (@metaDataMap <- metaDataMapStore; @songMap <- songMapStore) {
         metaDataMapStore!(metaDataMap.set(*songId.toByteArray(), [songMetadataIn, *songDataId.toByteArray()])) |
         songMapStore!(songMap.set(*songDataId.toByteArray(), songDataIn)) |
-        songIdOut!(*songId.toByteArray())
+        songIdOut!(*songId.toByteArray()) | testLog ! (["THE ID IS : ", *songId.toByteArray()])
       }
     }
   } |
   contract @["Immersion", "retrieveSong"](@songIdIn, songDataOut) = {
     for (@metaDataMap <- metaDataMapStore; @songMap <- songMapStore) {
+    testLog !("im in FETCH NOW ") |
       metaDataMapStore!(metaDataMap) |
       songMapStore!(songMap) |
-      songDataOut!(songMap.get(metaDataMap.get(songIdIn).nth(1)))
+      songDataOut!(songMap.get(metaDataMap.get(songIdIn).nth(1))) |
+      testLog !("THIS IS THE fetched SONG " )
     }
   } |
   

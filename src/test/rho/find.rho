@@ -1,0 +1,4 @@
+new broke, testLog(`rho:io:stderr`) in {
+@["Immersion", "retrieveSong"] ! ("Broke.jpg".hexToBytes(), *broke)
+| for ( @x <- broke) { testLog ! (["this is from find.rho. process : " , x]) }
+  }

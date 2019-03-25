@@ -6,9 +6,6 @@ import com.google.protobuf.empty._
 import io.grpc.{ManagedChannel, ManagedChannelBuilder}
 import coop.rchain.casper.protocol.DeployServiceGrpc.DeployServiceBlockingStub
 import coop.rchain.domain.OpCode.OpCode
-import coop.rchain.utils.FileUtil
-
-import scala.util._
 
 object RholangProxy {
 
@@ -58,14 +55,6 @@ class RholangProxy(channel: ManagedChannel) {
         .withPhloPrice(1L)
     ).asEither(OpCode.grpcDeploy)
 
-  val deployFromFile: String => Either[Err, String] = path =>
-    for {
-      c <- FileUtil.fileFromClasspath(path)
-      d <- deploy(c)
-    } yield d
-
   def proposeBlock: Either[Err, String] =
     grpc.createBlock(Empty()).asEither(OpCode.grpcDeploy)
-
-
 }

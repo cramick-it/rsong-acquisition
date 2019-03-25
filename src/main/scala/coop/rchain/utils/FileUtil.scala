@@ -1,9 +1,8 @@
 package coop.rchain.utils
 
-import java.io.File
-
+import java.io.{BufferedInputStream, FileInputStream}
+import coop.rchain.utils.HexUtil._
 import coop.rchain.domain.{Err, OpCode}
-
 import scala.util._
 
 object FileUtil {
@@ -18,17 +17,38 @@ object FileUtil {
         Right(s)
       case Failure(e) =>
         stream.close
-        Left(Err(OpCode.contractFile, fileName))
+        Left(Err(OpCode.contractFile, e.getMessage))
     }
   }
-  // todo will be used in v2
-  // ideally there will be acquisition related manifest outlining asset metadata and location
-  private def getListOfFiles(dir: String): List[File] = {
-    val d = new File(dir)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.filter(_.isFile).toList
-    } else {
-      List[File]()
+  def readFileAsByteArray(fileName: String): Array[Byte] = {
+    val bis = new BufferedInputStream(new FileInputStream(fileName))
+    Stream.continually(bis.read).takeWhile(-1 !=).map(_.toByte).toArray
+  }
+
+  def logDepth(s: String): String = {
+    val threshold = 1024
+    if (s.length <= threshold)
+      s""""$s""""
+    else {
+      val mid = s.length / 2
+      val l = logDepth(s.substring(0, mid))
+      val r = logDepth(s.substring(mid))
+      s"""(\n$l\n++\n$r\n)"""
+    }
+  }
+
+  def asHexConcatRsong(filePath: String): Either[Err, String] = {
+    Try {
+      (readFileAsByteArray _
+        andThen bytes2hex _
+        andThen logDepth) (filePath)
+    } match {
+      case Success(s) =>
+        Right(s)
+      case Failure(e) =>
+        Left(
+          Err(OpCode.rsongHexConversion,
+            s"${e.getMessage}"))
     }
   }
 }
