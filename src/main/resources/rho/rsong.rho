@@ -8,25 +8,40 @@
 
 
 new metaDataMapStore, songMapStore, userMapStore, remunerate, testLog(`rho:io:stderr`) in {
+  // Maps songId to [metadata, songDataId]
   metaDataMapStore!({}) |
+  // Maps songDataId to songData
   songMapStore!({}) |
+  // Maps userId to remaining play count
   userMapStore!({}) |
+  
+  // songDataIn: arbitrary, usually bytearray
+  // songMetaDataIn: map with
+  //  "Title Name" - title of song
+  //  "Artist Name" - artist of song
+  //  "songWriters" key with a list of [
+  //    "pubKey" - ed25519 public key (ByteArray of length 32)
+  //    "share" - int between 0 and 100: percent of revenue share
+  //    "name" - display name for this songwriter
+  //  ]
+  // songIdOut: name on which new songId (ByteArray) gets sent
   contract @["Immersion", "store"](@songDataIn, @songMetadataIn, songIdOut) = {
     new songId, songDataId in {
       for (@metaDataMap <- metaDataMapStore; @songMap <- songMapStore) {
         metaDataMapStore!(metaDataMap.set(*songId.toByteArray(), [songMetadataIn, *songDataId.toByteArray()])) |
         songMapStore!(songMap.set(*songDataId.toByteArray(), songDataIn)) |
-        songIdOut!(*songId.toByteArray()) | testLog ! (["THE ID IS : ", *songId.toByteArray()])
+        songIdOut!(*songId.toByteArray())
       }
     }
   } |
+  
+  // songIdIn: bytearray
+  // songDataOut: name on which songData gets sent
   contract @["Immersion", "retrieveSong"](@songIdIn, songDataOut) = {
     for (@metaDataMap <- metaDataMapStore; @songMap <- songMapStore) {
-    testLog !("im in FETCH NOW ") |
       metaDataMapStore!(metaDataMap) |
       songMapStore!(songMap) |
-      songDataOut!(songMap.get(metaDataMap.get(songIdIn).nth(1))) |
-      testLog !("THIS IS THE fetched SONG " )
+      songDataOut!(songMap.get(metaDataMap.get(songIdIn).nth(1)))
     }
   } |
   

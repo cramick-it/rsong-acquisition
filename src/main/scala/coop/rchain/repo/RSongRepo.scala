@@ -13,9 +13,10 @@ object RSongRepo {
 }
 
 class RSongRepo(val proxy: RholangProxy) {
+  val log = Logger[RSongRepo]
 
   def asRholang(asset: RSongJsonAsset) = {
-    println(s"***** name to retrieve song: ${asset.id} ***** ")
+    log.info(s"name to retrieve song: ${asset.id}")
     s"""@["Immersion", "store"]!(${asset.assetData}, ${asset.jsonData}, "${asset.id}")"""
   }
 
